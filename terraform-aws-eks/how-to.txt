@@ -1,0 +1,8 @@
+# How To
+
+aws configure
+    to setup credentials aws cli
+
+aws sts get-caller-identity
+    user information authenticated in aws cli
+

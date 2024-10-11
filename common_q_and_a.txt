@@ -1,0 +1,32 @@
+Common Questions and Answers
+
+- What is Terraform, and how does it differ from other Infrastructure as Code (IaC) tools like AWS CloudFormation or Ansible?
+    Terraform is an open-source Infrastructure as Code (IaC) tool that uses a declarative configuration language to manage infrastructure. Unlike CloudFormation, which is AWS-specific, Terraform supports multiple cloud providers. Compared to Ansible, Terraform focuses on provisioning infrastructure, while Ansible is typically used for configuration management.
+
+- Explain the difference between a Terraform provider and a module. Can you provide an example of when you would use each?
+    A provider in Terraform is responsible for interacting with APIs of cloud services (e.g., AWS, GCP). A module is a container for multiple resources that can be reused. You use a provider to interact with a cloud platform, while you use a module to encapsulate logic for reuse (e.g., deploying an EC2 instance).
+
+- What is a Terraform state file, and why is it important? How do you manage Terraform state in a team environment?
+    The state file tracks the current state of your infrastructure, allowing Terraform to know what resources are managed. It's important because it ensures consistency between your configuration and actual infrastructure. In a team, the state is managed in a remote backend like S3 with locking via DynamoDB to avoid conflicts.
+
+- How would you handle sensitive information, like secrets or API keys, in your Terraform configuration files?
+    You should handle sensitive information using Terraform variables in combination with services like AWS Secrets Manager or HashiCorp Vault. Additionally, you can use the sensitive attribute and avoid committing sensitive data in your .tf files.
+
+- Can you explain what "remote state" is in Terraform and how you would configure it for a production environment?
+    Remote state refers to storing the Terraform state file in a remote location like S3 or Azure Blob Storage, instead of locally. For production, you configure it with a backend block that specifies the remote store and enable locking (e.g., using DynamoDB in AWS).
+
+- What are Terraform workspaces, and when would you use them? Can you give an example of how they help manage different environments (e.g., dev, staging, prod)?
+    Workspaces allow you to manage multiple environments with a single configuration by using separate state files. For example, you can have dev, staging, and prod workspaces, each with its own infrastructure setup but sharing the same codebase.
+
+- Describe how you can use Terraform to manage infrastructure across multiple cloud providers (e.g., AWS, GCP, and Azure) in a single configuration.
+    Terraform supports multi-cloud management through different providers. In a single configuration, you can declare resources for multiple providers, like creating VMs on AWS and GCP, and networking resources on Azure, all within the same .tf files.
+
+- If your Terraform apply fails in the middle of a resource creation process, how would you troubleshoot and resolve the issue?
+    If a terraform apply fails, you can troubleshoot by checking the logs and reviewing the state file. You may use the terraform refresh command to sync the state with real infrastructure, or fix the issue manually and use terraform taint to recreate faulty resources.
+
+- What is a terraform plan and how does it help in avoiding infrastructure issues?
+    The terraform plan command previews the changes that Terraform will apply. It helps you avoid unintended changes by clearly showing what will be created, modified, or destroyed before actually applying the changes.
+
+- How do you modularize Terraform configurations, and what are the advantages of using modules in a large infrastructure project?
+    You modularize Terraform configurations by organizing reusable blocks of code into modules. The advantage is to avoid duplication, make the code more maintainable, and allow reuse across different projects or environments (e.g., using the same EC2 module for both dev and prod).
+
