@@ -1,0 +1,10 @@
+parameters:
+  terraformDirectory: 
+
+steps:
+
+- script: |
+    echo "Checking format for ${{ parameters.terraformDirectory }}"
+    terraform fmt -check -recursive
+  displayName: Terraform Fmt
+  workingDirectory: ${{ parameters.terraformDirectory }}

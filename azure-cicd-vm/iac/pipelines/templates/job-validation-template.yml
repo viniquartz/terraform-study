@@ -1,0 +1,37 @@
+jobs:
+- job: validation
+  displayName: 'Validation'
+
+  pool:
+    vmImage: 'Ubuntu-18.04'
+
+  variables:
+  - template: constants.yml
+
+  steps:
+  - template: tools-download-template.yml
+
+  - template: terraform-init-local-template.yml
+    parameters:
+      terraformDirectory: ${{ variables.terraformDirectory }}
+
+  - template: terraform-validate-template.yml
+    parameters:
+      terraformDirectory: ${{ variables.terraformDirectory }}
+
+  - template: terraform-fmt-template.yml
+    parameters:
+      terraformDirectory: ${{ variables.terraformDirectory }}
+
+  # - template: terraform-validate-template.yml
+  #   parameters:
+  #     terraformDirectory: ${{ variables.terraformConfigDirectory }}
+      
+  # - template: terraform-fmt-template.yml
+  #   parameters:
+  #     terraformDirectory: ${{ variables.terraformConfigDirectory }}
+  
+  # - template: tfsec-template.yml
+  #   parameters:
+  #     terraformDirectory: ${{ variables.terraformDirectory }}
+      

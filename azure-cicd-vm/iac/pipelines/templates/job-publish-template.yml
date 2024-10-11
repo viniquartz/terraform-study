@@ -1,0 +1,49 @@
+parameters:
+  - name: artifactFeed
+    type: string
+  - name: artifactView
+    type: string
+  - name: artifactName
+    type: string
+jobs:
+  - job: bundle
+    displayName: "Project publish"
+    dependsOn: 'versioning'
+    condition: succeeded()
+    variables:
+      package_version: $[ dependencies.versioning.outputs['versioningStep.package_version'] ]
+
+    pool:
+      vmImage: 'Ubuntu-18.04'
+
+    steps:
+      - script: az extension add -n azure-devops
+        displayName: 'Install Azure DevOps Extension'
+      - script: echo ${AZURE_DEVOPS_CLI_PAT} | az devops login
+        env:
+          AZURE_DEVOPS_CLI_PAT: $(System.AccessToken)
+        displayName: 'Login Azure DevOps Extension'
+      - script: az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject)
+        displayName: 'Set default Azure DevOps organization and project'
+      - script: |
+          rm -fr pipelines
+          rm -fr .git
+          rm .gitignore
+        displayName: 'Create bundle of version'
+      - script: |
+          az artifacts universal publish --scope project \
+            --name ${{ parameters.artifactName }} \
+            --feed "${{ parameters.artifactFeed }}" \
+            --version "$package_version" \
+            --description "Version $package_version created by build $build_id" \
+            --path .
+          echo Organizaton: $(System.CollectionId)
+          curl -u :$(System.AccessToken) \
+            --header "Content-Type: application/json" \
+            -X PATCH \
+            https://dev.azure.com/kumulus-demo/$(System.TeamProject)/_apis/packaging/feeds/${{ parameters.artifactFeed }}/upack/packages/${{ parameters.artifactName }}/versions/$(package_version)?api-version=6.0-preview.1 \
+            --data '{"views": {"op": "add", "path": "/views/-", "value": "${{ parameters.artifactView }}"}}'
+        displayName: "Publish to feed"
+        env:
+          package_version: $(package_version)
+          build_id: $(Build.BuildId)

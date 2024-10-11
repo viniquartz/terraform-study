@@ -1,0 +1,9 @@
+parameters:
+  terraformDirectory: 
+
+steps:
+
+- script: terraform init -backend=false -input=false
+  displayName: Terraform Init
+  workingDirectory: ${{ parameters.terraformDirectory }}
+  

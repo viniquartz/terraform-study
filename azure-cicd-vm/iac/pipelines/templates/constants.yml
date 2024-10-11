@@ -1,0 +1,3 @@
+variables:
+  terraformDirectory: $(System.DefaultWorkingDirectory)/terraform
+  terraformConfigDirectory: $(System.DefaultWorkingDirectory)/config/

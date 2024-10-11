@@ -1,0 +1,14 @@
+parameters:
+  terraformDirectory: 
+
+steps:
+
+- script: |
+   cat <<__EOF__>tfsec.yaml
+   ---
+   exclude:
+     - AZU008
+   __EOF__
+   tfsec
+  displayName: Security scanner using tfsec
+  workingDirectory: ${{ parameters.terraformDirectory }}

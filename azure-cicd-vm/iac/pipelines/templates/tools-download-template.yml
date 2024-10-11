@@ -1,0 +1,20 @@
+parameters:
+  terraformVersion: 0.14.3
+  tfsecVersion: v0.36.11
+  enableDownloadBuildTools: true
+
+steps:
+
+- script: |
+    wget "https://releases.hashicorp.com/terraform/${{ parameters.terraformVersion }}/terraform_${{ parameters.terraformVersion }}_linux_amd64.zip" -O terraform.zip
+    sudo rm /usr/local/bin/terraform
+    sudo unzip terraform.zip -d /usr/local/bin/
+    rm terraform.zip
+  displayName: Download and Install Terraform ${{ parameters.terraformVersion }}
+
+- ${{ if eq(parameters.enableDownloadBuildTools, true) }}:
+  - script: |
+      wget https://github.com/tfsec/tfsec/releases/download/${{ parameters.tfsecVersion }}/tfsec-linux-amd64 -O tfsec
+      chmod +x tfsec
+      sudo mv tfsec /usr/local/bin/
+    displayName: Download and Install Tfsec ${{ parameters.tfsecVersion }}

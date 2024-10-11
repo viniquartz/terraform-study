@@ -1,0 +1,27 @@
+trigger: 
+  batch: true
+  branches:
+    include:
+    - main
+    
+variables:
+  variableGroupName: iac-versions
+  artifactFeed: IaC-demo-azure-terraform
+  artifactView: Release
+  artifactName: iac-demo-azure-terraform-package
+
+jobs:
+  
+  - template: templates/job-validation-template.yml
+
+  - template: templates/job-versioning-template.yml
+    parameters:
+      variableGroupName: $(variableGroupName)
+      sourceBranchName: $(Build.SourceBranch)
+      prereleaseAlias: none
+
+  - template: templates/job-publish-template.yml
+    parameters:
+      artifactFeed: $(artifactFeed)
+      artifactView: $(artifactView)
+      artifactName: $(artifactName)

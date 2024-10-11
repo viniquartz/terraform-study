@@ -1,0 +1,129 @@
+parameters:
+  - name: variableGroupName
+    type: string
+  - name: sourceBranchName
+    type: string
+  - name: prereleaseAlias
+    type: string
+    default: none
+    values:
+      - preview
+      - none
+
+jobs:
+
+  - job: versioning
+    pool:
+      vmImage: 'Ubuntu-18.04'
+    displayName: "Project versioning"
+    dependsOn: 'validation'
+    condition: succeeded()
+    steps:
+      - script: az extension add -n azure-devops
+        displayName: 'Install Azure DevOps Extension'
+
+      - script: echo ${AZURE_DEVOPS_CLI_PAT} | az devops login
+        env:
+          AZURE_DEVOPS_CLI_PAT: $(System.AccessToken)
+        displayName: 'Login Azure DevOps Extension'
+
+      - script: az devops configure --defaults organization=$(System.TeamFoundationCollectionUri) project=$(System.TeamProject)
+        displayName: 'Set default Azure DevOps organization and project'
+
+      - script: |
+          set -x
+          groupId=$(az pipelines variable-group list --query "[?name=='${{ parameters.variableGroupName }}'].id" -o tsv)
+
+          if [ -z "$groupId" ]; then
+            echo "The variable group '${{ parameters.variableGroupName }}' was not found."
+            exit 1
+          fi
+
+          major=$(az pipelines variable-group show --group-id $groupId --query "variables.MAJOR.value" -o tsv)
+
+          if [ -z "$major" ]; then
+            echo "The MAJOR variable was not found on the variable group '${{ parameters.variableGroupName }}'."
+            exit 1
+          fi
+
+          minor=$(az pipelines variable-group show --group-id $groupId --query "variables.MINOR.value" -o tsv)
+
+          if [ -z "$minor" ]; then
+            echo "The MINOR variable was not found on the variable group '${{ parameters.variableGroupName }}'."
+            exit 1
+          fi
+
+          patch=$(az pipelines variable-group show --group-id $groupId --query "variables.PATCH.value" -o tsv)
+
+          if [ -z "$patch" ]; then
+            echo "The PATCH variable was not found on the variable group '${{ parameters.variableGroupName }}'."
+            exit 1
+          fi
+
+          echo ${{ parameters.sourceBranchName }}
+
+          if [[ ${{ parameters.sourceBranchName }} == *"feature"* ]]; then
+            echo "Entrei em feature"
+            ((minor=minor+1))
+            ((patch=0))
+          else
+            if [[ ${{ parameters.sourceBranchName }} == *"patch"* ]]; then
+              echo "Entrei em patch"
+              ((patch=patch+1))
+            else
+              if [[ ${{ parameters.sourceBranchName }} != *"main"* ]]; then
+                echo "The branch name '${{ parameters.sourceBranchName }}' is not at a valid format for features and patches."
+                echo "You should use 'feature/' or 'patch/' prefix to indicate what you're doing."
+                exit 1
+              fi
+            fi
+          fi
+
+          if [ ${{ parameters.prereleaseAlias }} == "none" ]; then
+            version=${major}.${minor}.${patch}
+            echo "Entrei em none"
+          else
+            version=${major}.${minor}.${patch}-${{ parameters.prereleaseAlias }}.$(Build.BuildId)
+          fi
+
+          version=$(echo $version | tr -d "'")
+
+          echo "##vso[task.setvariable variable=variable_group_id;isOutput=true]$groupId"
+          echo "##vso[task.setvariable variable=minor;isOutput=true]$minor"
+          echo "##vso[task.setvariable variable=patch;isOutput=true]$patch"
+          echo "##vso[task.setvariable variable=package_version;isOutput=true]$version"
+        name: versioningStep
+        displayName: 'Create prerelease version'
+
+      - script: |
+          echo "Current version: $package_version"
+        displayName: 'Current version'
+        env:
+          package_version: $(versioningStep.package_version)
+
+      - script: |
+          set -x
+          git config user.email "vinicius.santiago@kumulus.com.br"
+          git config user.name "vinicius.santiago"
+          package_version=$(echo $package_version | tr -d "'")
+
+          git tag -a "$package_version" -m "Version $package_version created by build $build_id"
+          
+          git -c http.extraheader="AUTHORIZATION: bearer ${access_token}" push origin "$package_version"
+        displayName: "Add version Tag to git"
+        env:
+          package_version: $(versioningStep.package_version)
+          build_id: $(Build.BuildId)
+          access_token: $(System.AccessToken)
+
+      - script: |
+          set -x
+          minor=$(echo $minor | tr -d "'")
+          patch=$(echo $patch | tr -d "'")
+          az pipelines variable-group variable update --group-id $groupId --name MINOR --value $minor
+          az pipelines variable-group variable update --group-id $groupId --name PATCH --value $patch
+        displayName: "Update versions on variable group"
+        env:
+          groupId: $(versioningStep.variable_group_id)
+          minor: $(versioningStep.minor)
+          patch: $(versioningStep.patch)
