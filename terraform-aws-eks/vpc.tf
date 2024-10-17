@@ -7,7 +7,7 @@ resource "aws_vpc" "vini_eks_vpc" {
   tags = merge(
     local.tags,
     {
-      Name = "vini-eks-vpc"
+      Name = "${var.project_name}-vpc"
     }
   )
 }

@@ -1,6 +1,6 @@
 locals {
   tags = {
-    Project     = "vini-eks",
+    Project     = var.project_name,
     Environment = "Development"
   }
 }
