@@ -4,8 +4,10 @@ resource "aws_vpc" "vini_eks_vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name    = "vini-eks-vpc"
-    Project = "vini-eks"
-  }
+  tags = merge(
+    local.tags,
+    {
+      Name = "vini-eks-vpc"
+    }
+  )
 }
