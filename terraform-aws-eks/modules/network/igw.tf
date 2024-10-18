@@ -1,8 +1,8 @@
 resource "aws_internet_gateway" "vini_eks_igw" {
-  vpc_id = aws_vpc.vini_eks_vpc
+  vpc_id = aws_vpc.vini_eks_vpc.id
 
   tags = merge(
-    local.tags,
+    var.tags,
     {
       Name = "${var.project_name}-igw"
     }
@@ -18,7 +18,7 @@ resource "aws_route_table" "vini_eks_public_route_table" {
   }
 
   tags = merge(
-    local.tags,
+    var.tags,
     {
       Name = "${var.project_name}-public-route-table"
     }

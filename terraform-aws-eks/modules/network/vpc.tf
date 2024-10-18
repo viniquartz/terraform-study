@@ -5,7 +5,7 @@ resource "aws_vpc" "vini_eks_vpc" {
   enable_dns_hostnames = true
 
   tags = merge(
-    local.tags,
+    var.tags,
     {
       Name = "${var.project_name}-vpc"
     }
