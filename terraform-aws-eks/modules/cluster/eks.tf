@@ -7,6 +7,8 @@ resource "aws_eks_cluster" "vini_eks_cluster_eks" {
       var.subnet_pub_1a_id,
       var.subnet_pub_1b_id
     ]
+    endpoint_public_access  = true
+    endpoint_private_access = true
   }
 
   depends_on = [
