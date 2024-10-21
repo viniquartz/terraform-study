@@ -6,7 +6,9 @@ module "vini_eks_network" {
 }
 
 module "vini_eks_cluster" {
-  source       = "./modules/cluster"
-  project_name = var.project_name
-  tags         = local.tags
+  source           = "./modules/cluster"
+  project_name     = var.project_name
+  tags             = local.tags
+  subnet_pub_1a_id = module.vini_eks_network.subnet_pub_1a_id
+  subnet_pub_1b_id = module.vini_eks_network.subnet_pub_1b_id
 }
