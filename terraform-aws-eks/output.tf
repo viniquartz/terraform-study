@@ -13,3 +13,7 @@ output "subnet_priv_1a_id" {
 output "subnet_priv_1b_id" {
   value = module.vini_eks_network.subnet_priv_1b_id
 }
+
+output "eks_cluster_sg_id" {
+  value = module.vini_eks_cluster.eks_cluster_sg_id
+}
