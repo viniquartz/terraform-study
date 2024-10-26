@@ -12,3 +12,14 @@ module "vini_eks_cluster" {
   subnet_pub_1a_id = module.vini_eks_network.subnet_pub_1a_id
   subnet_pub_1b_id = module.vini_eks_network.subnet_pub_1b_id
 }
+
+module "vini_eks_managed_node_group" {
+  source            = "./modules/managed-node-group"
+  project_name      = var.project_name
+  tags              = local.tags
+  eks_cluster_name  = module.vini_eks_cluster.eks_cluster_name
+  subnet_priv_1a_id = module.vini_eks_network.subnet_priv_1a_id
+  subnet_priv_1b_id = module.vini_eks_network.subnet_priv_1b_id
+
+  depends_on = [module.vini_eks_cluster]
+}

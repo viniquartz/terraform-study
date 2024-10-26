@@ -1,4 +1,4 @@
-resource "aws_iam_role" "vini_eks_iam_role_cluster" {
+resource "aws_iam_role" "vini_eks_role_cluster" {
   name = "${var.project_name}-iam-role-cluster"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -21,7 +21,7 @@ resource "aws_iam_role" "vini_eks_iam_role_cluster" {
   )
 }
 
-resource "aws_iam_role_policy_attachment" "vini_eks_iam_role_attach" {
-  role       = aws_iam_role.vini_eks_iam_role_cluster.name
+resource "aws_iam_role_policy_attachment" "vini_eks_cluster_role_attach" {
+  role       = aws_iam_role.vini_eks_role_cluster.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
