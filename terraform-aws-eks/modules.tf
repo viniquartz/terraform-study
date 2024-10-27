@@ -23,3 +23,10 @@ module "vini_eks_managed_node_group" {
 
   depends_on = [module.vini_eks_cluster]
 }
+
+module "load_balancer_controller" {
+  source       = "./modules/lb-controller"
+  project_name = var.project_name
+  tags         = local.tags
+  depends_on   = [module.vini_eks_managed_node_group]
+}
