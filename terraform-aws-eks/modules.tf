@@ -29,4 +29,5 @@ module "load_balancer_controller" {
   project_name = var.project_name
   tags         = local.tags
   depends_on   = [module.vini_eks_managed_node_group]
+  oidc_id      = module.vini_eks_cluster.eks_cluster_oidc
 }

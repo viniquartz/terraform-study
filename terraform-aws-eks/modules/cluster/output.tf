@@ -13,3 +13,11 @@ output "eks_cluster_oidc" {
 output "eks_cluster_name" {
   value = aws_eks_cluster.vini_eks_cluster_eks.id
 }
+
+output "eks_cluster_endpoint" {
+  value = aws_eks_cluster.vini_eks_cluster_eks.endpoint
+}
+
+output "eks_cluster_ca" {
+  value = aws_eks_cluster.vini_eks_cluster_eks.certificate_authority[0].data
+}
