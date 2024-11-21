@@ -7,3 +7,4 @@ resource "kubernetes_service_account" "vini_eks_lb_controller_sa" {
     }
   }
 }
+#https://docs.aws.amazon.com/eks/latest/userguide/lbc-manifest.html

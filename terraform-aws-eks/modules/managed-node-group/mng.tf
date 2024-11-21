@@ -13,7 +13,7 @@ resource "aws_eks_node_group" "vini_eks_mng" {
     min_size     = 1
   }
 
-  instance_types = ["c5.large"]
+  instance_types = ["t2.micro"]
   capacity_type  = "ON_DEMAND"
   ami_type       = "AL2_x86_64"
 
